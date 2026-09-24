@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vence — lembrete de vencimento de documentos</title>
+<meta name="description" content="O Vence lê o vencimento de CNH, IPVA, seguros, garantias e contratos direto da foto do documento e avisa antes da multa. Tudo processado no iPhone, sem servidor.">
+<meta name="theme-color" content="#2440f2">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vence">
+<meta property="og:title" content="Vence — antes que vença, você já sabe">
+<meta property="og:description" content="Lembretes automáticos de CNH, IPVA, seguros e contratos, lidos direto da foto do documento. Chegando em breve para iPhone.">
+<meta property="og:image" content="assets/icon-512.png">
+<meta property="og:url" content="https://vence-app.com/">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,440;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand-cyan:#5ad7f7;
+    --brand-blue:#2440f2;
+    --brand-violet:#7b2ff5;
+    --ink:#0b0e2a;
+    --paper:#f6f7fb;
+    --card:#ffffff;
+    --card-tint:#eef0fb;
+    --rule:#e1e4f6;
+    --text:#12142b;
+    --muted:#5a5f86;
+    --danger:#ff3b30;
+    --warning:#ff9500;
+    --success:#2fb35c;
+    --shadow: 0 30px 60px -30px rgba(18,20,60,.35);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0a0c1f;
+      --card:#12152f;
+      --card-tint:#161a38;
+      --rule:#242851;
+      --text:#eef0fb;
+      --muted:#a7abd6;
+      --shadow: 0 30px 60px -30px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding-inline:24px;}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;letter-spacing:-.01em;text-wrap:balance;margin:0;}
+  em{font-style:italic;font-weight:500;color:var(--brand-blue);}
+  @media (prefers-color-scheme: dark){ em{ color:var(--brand-cyan); } }
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--brand-violet);
+  }
+  @media (prefers-color-scheme: dark){ .eyebrow{ color:var(--brand-cyan); } }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+  p{margin:0;color:var(--muted);}
+  section{padding-block:88px;}
+  @media (max-width:720px){ section{padding-block:56px;} }
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--rule);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;text-decoration:none;}
+  .brand img{width:30px;height:30px;border-radius:8px;}
+  .navlinks{display:flex;align-items:center;gap:28px;font-size:.92rem;font-weight:600;}
+  .navlinks a{text-decoration:none;color:var(--muted);}
+  .navlinks a:hover{color:var(--text);}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--card-tint);
+    border:1px solid var(--rule);
+    padding:6px 14px;border-radius:99px;
+    font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;letter-spacing:.04em;
+    color:var(--brand-blue);
+  }
+  @media (prefers-color-scheme: dark){ .pill{ color:var(--brand-cyan); } }
+  @media (max-width:640px){ .navlinks a{display:none;} }
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:64px 40px;overflow:hidden;position:relative;}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;}
+  @media (max-width:860px){ .hero-grid{grid-template-columns:1fr;} }
+  .hero h1{font-size:clamp(2.3rem,4vw + 1.2rem,3.6rem);line-height:1.06;margin-top:16px;}
+  .hero p.lead{font-size:1.13rem;margin-top:20px;max-width:52ch;color:var(--muted);}
+  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:32px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:linear-gradient(135deg,var(--brand-blue),var(--brand-violet));
+    color:#fff;text-decoration:none;font-weight:700;font-size:.95rem;
+    padding:14px 22px;border-radius:14px;
+    box-shadow:0 16px 30px -12px rgba(36,64,242,.55);
+  }
+  .btn-note{font-size:.85rem;color:var(--muted);}
+  .btn-note .mono{color:var(--text);font-weight:600;}
+
+  .phone-stage{position:relative;display:flex;justify-content:center;}
+  .phone-glow{
+    position:absolute;inset:-10% -10% -10% -10%;
+    background:radial-gradient(closest-side,var(--brand-cyan),transparent 70%),
+               radial-gradient(closest-side,var(--brand-violet),transparent 65%);
+    background-position:20% 15%, 80% 85%;
+    background-repeat:no-repeat;
+    filter:blur(50px);
+    opacity:.5;
+  }
+  .phone{
+    position:relative;width:min(260px,64vw);
+    aspect-ratio:1320/2868;
+    padding:12px;border-radius:48px;
+    background:linear-gradient(160deg,var(--ink),#1b1f45);
+    box-shadow:var(--shadow);
+    transform:rotate(-3deg);
+  }
+  .phone img{width:100%;height:100%;object-fit:cover;border-radius:36px;}
+  .phone::after{
+    content:"";position:absolute;top:26px;left:50%;transform:translateX(-50%);
+    width:34%;height:20px;background:#000;border-radius:20px;
+  }
+  .phone.tilt-right{transform:rotate(3deg);}
+
+  /* ---------- status strip ---------- */
+  .status-head{text-align:center;max-width:640px;margin:0 auto 40px;}
+  .status-head h2{margin-top:12px;font-size:clamp(1.7rem,2.4vw + 1rem,2.3rem);}
+  .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media (max-width:760px){ .status-grid{grid-template-columns:1fr;} }
+  .status-card{
+    background:var(--card);border:1px solid var(--rule);border-radius:20px;
+    padding:26px 24px;box-shadow:var(--shadow);
+  }
+  .status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;}
+  .status-card h3{font-family:"Manrope";font-weight:700;font-size:1rem;margin:0;display:flex;align-items:center;}
+  .status-card .count{font-family:"IBM Plex Mono";font-weight:600;font-size:2.4rem;margin-top:14px;font-variant-numeric:tabular-nums;}
+  .status-card p{margin-top:8px;font-size:.92rem;}
+  .status-card.vencidos .count{color:var(--danger);}
+  .status-card.trinta .count{color:var(--warning);}
+  .status-card.emdia .count{color:var(--success);}
+
+  /* ---------- feature rows ---------- */
+  .feature-row{display:grid;grid-template-columns:.95fr 1.05fr;gap:60px;align-items:center;}
+  .feature-row.reverse{grid-template-columns:1.05fr .95fr;}
+  .feature-row.reverse .phone-stage{order:2;}
+  @media (max-width:860px){
+    .feature-row,.feature-row.reverse{grid-template-columns:1fr;}
+    .feature-row.reverse .phone-stage{order:0;}
+  }
+  .feature-row h2{font-size:clamp(1.7rem,2.4vw + 1rem,2.4rem);margin-top:12px;}
+  .feature-row p.lead{margin-top:16px;font-size:1.05rem;max-width:48ch;}
+  .feature-row + .feature-row{margin-top:96px;}
+  @media (max-width:720px){ .feature-row + .feature-row{margin-top:64px;} }
+  .taglist{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;}
+  .tag{
+    font-size:.82rem;font-weight:600;background:var(--card-tint);border:1px solid var(--rule);
+    padding:6px 12px;border-radius:99px;color:var(--muted);
+  }
+
+  /* ---------- feature grid ---------- */
+  .fg-head{max-width:640px;margin-bottom:44px;}
+  .fg-head h2{margin-top:12px;font-size:clamp(1.7rem,2.4vw + 1rem,2.3rem);}
+  .fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  @media (max-width:720px){ .fgrid{grid-template-columns:1fr;} }
+  .fcard{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:24px;}
+  .fcard .icon{
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg,var(--brand-blue),var(--brand-violet));
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  }
+  .fcard .icon svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2;}
+  .fcard h3{font-family:"Manrope";font-size:1.03rem;font-weight:700;margin:0 0 6px;}
+  .fcard p{font-size:.92rem;}
+
+  /* ---------- privacy band ---------- */
+  .privacy{background:var(--ink);color:#eef0fb;}
+  .privacy .eyebrow{color:var(--brand-cyan);}
+  .privacy h2{color:#fff;font-size:clamp(1.9rem,2.8vw + 1rem,2.7rem);margin-top:14px;max-width:16ch;}
+  .privacy-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:20px;}
+  @media (max-width:860px){ .privacy-grid{grid-template-columns:1fr;} }
+  .privacy-list{list-style:none;margin:28px 0 0;padding:0;display:flex;flex-direction:column;gap:18px;}
+  .privacy-list li{display:flex;gap:14px;font-size:.98rem;color:#c9cdf0;}
+  .privacy-list svg{flex:none;width:20px;height:20px;stroke:var(--brand-cyan);fill:none;stroke-width:2;margin-top:2px;}
+  .privacy .phone-glow{opacity:.35;}
+
+  /* ---------- pricing ---------- */
+  .pricing-head{text-align:center;max-width:620px;margin:0 auto 44px;}
+  .pricing-head h2{margin-top:12px;font-size:clamp(1.8rem,2.6vw + 1rem,2.4rem);}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media (max-width:760px){ .pgrid{grid-template-columns:1fr;} }
+  .pcard{border-radius:22px;padding:34px;border:1px solid var(--rule);background:var(--card);}
+  .pcard.premium{background:linear-gradient(165deg,var(--brand-blue),var(--brand-violet));color:#fff;border:none;box-shadow:var(--shadow);}
+  .pcard h3{font-family:"Manrope";font-size:1.15rem;font-weight:800;}
+  .pcard .price{font-family:"IBM Plex Mono";font-size:2.1rem;font-weight:600;margin-top:14px;}
+  .pcard .price span{font-size:.9rem;font-weight:500;opacity:.75;}
+  .pcard ul{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:12px;font-size:.92rem;}
+  .pcard.premium p{color:rgba(255,255,255,.85);}
+  .pcard:not(.premium) p{margin-top:6px;font-size:.92rem;}
+  .pcard li{display:flex;gap:10px;}
+  .pcard li svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;}
+  .golden{margin-top:28px;padding-top:24px;border-top:1px solid var(--rule);font-size:.9rem;color:var(--muted);max-width:70ch;}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--rule);padding-block:48px;}
+  .foot-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;align-items:flex-start;}
+  .foot-links{display:flex;flex-wrap:wrap;gap:20px;font-size:.88rem;}
+  .foot-links a{text-decoration:none;color:var(--muted);}
+  .foot-links a:hover{color:var(--text);}
+  .foot-copy{font-size:.82rem;color:var(--muted);margin-top:18px;}
+  .support-email{font-family:"IBM Plex Mono";font-size:.85rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <a class="brand" href="#top">
+      <img src="assets/icon-180.png" alt="">
+      Vence
+    </a>
+    <div class="navlinks">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#privacidade">Privacidade</a>
+      <a href="#premium">Premium</a>
+    </div>
+    <span class="pill">● chegando em breve</span>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Documentos pessoais · iPhone</span>
+        <h1>Antes que <em>vença</em>, você já sabe.</h1>
+        <p class="lead">CNH, IPVA, licenciamento, seguros, garantias e contratos num só lugar. O Vence lê a data direto da foto do documento e te avisa com antecedência — sem planilha, sem post-it, sem susto.</p>
+        <div class="cta-row">
+          <a class="btn" href="mailto:suporte@vence-app.com?subject=Avise-me%20quando%20o%20Vence%20lan%C3%A7ar">
+            Avise-me no lançamento
+          </a>
+          <span class="btn-note">Grátis para começar · até <span class="mono">5</span> documentos</span>
+        </div>
+      </div>
+      <div class="phone-stage">
+        <div class="phone-glow"></div>
+        <div class="phone">
+          <img src="assets/screenshots/1-lista.png" alt="Tela do Vence mostrando documentos organizados em Vencidos, Vencem em 30 dias e Em dia">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona">
+    <div class="wrap">
+      <div class="status-head">
+        <span class="eyebrow">Como funciona</span>
+        <h2>Três situações. Nenhuma surpresa.</h2>
+      </div>
+      <div class="status-grid">
+        <div class="status-card vencidos">
+          <h3><span class="status-dot" style="background:var(--danger)"></span>Vencidos</h3>
+          <div class="count mono">2</div>
+          <p>CNH e licenciamento já passaram do prazo — o Vence mostra há quantos dias, todo santo dia, até você resolver.</p>
+        </div>
+        <div class="status-card trinta">
+          <h3><span class="status-dot" style="background:var(--warning)"></span>Vencem em 30 dias</h3>
+          <div class="count mono">3</div>
+          <p>IPVA e seguro entrando na janela crítica: os lembretes de 30, 7 e 1 dia antes já estão agendados.</p>
+        </div>
+        <div class="status-card emdia">
+          <h3><span class="status-dot" style="background:var(--success)"></span>Em dia</h3>
+          <div class="count mono">2</div>
+          <p>Passaporte e garantia do notebook, tranquilos por enquanto — o Vence continua de olho sozinho.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+
+      <div class="feature-row">
+        <div>
+          <span class="eyebrow">Leitura automática</span>
+          <h2>Aponte a câmera. O Vence lê o resto.</h2>
+          <p class="lead">A câmera de documentos, uma foto da galeria ou um PDF já bastam. O texto é reconhecido no próprio aparelho com o Vision, e regras em português sugerem categoria, título, órgão emissor e data de vencimento — cada sugestão mostra onde foi encontrada, e nada é salvo sem você confirmar.</p>
+          <div class="taglist">
+            <span class="tag">Câmera · galeria · PDF</span>
+            <span class="tag">OCR no aparelho</span>
+            <span class="tag">Apple Intelligence (iOS 26+)</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-glow"></div>
+          <div class="phone tilt-right">
+            <img src="assets/screenshots/2-leitura-automatica.png" alt="Tela de novo documento com sugestões automáticas de categoria, seguradora e data de vencimento">
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row reverse">
+        <div>
+          <span class="eyebrow">Na hora de renovar</span>
+          <h2>Atalho pro site certo, sem procurar.</h2>
+          <p class="lead">Um toque leva você direto às orientações oficiais — gov.br, Poupatempo, Polícia Federal — e à unidade mais próxima no Apple Maps. O Vence só aponta o caminho: quem confirma prazo e requisito é sempre o órgão emissor.</p>
+          <div class="taglist">
+            <span class="tag">gov.br</span>
+            <span class="tag">Poupatempo</span>
+            <span class="tag">Unidade mais próxima</span>
+          </div>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-glow"></div>
+          <div class="phone">
+            <img src="assets/screenshots/4-renovacao.png" alt="Tela de renovação de documento com atalhos para o site oficial e para a unidade mais próxima">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="fg-head">
+        <span class="eyebrow">Também no Vence</span>
+        <h2>O resto do que um lembrete de verdade precisa</h2>
+      </div>
+      <div class="fgrid">
+        <div class="fcard">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <h3>Lembretes que não falham</h3>
+          <p>Avisos locais às 9h, com antecedência configurável (padrão: 60, 30, 7 e 1 dia). O app mantém sempre agendados os 64 lembretes mais próximos — o teto do iOS.</p>
+        </div>
+        <div class="fcard">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 10h16M9 4v16"/></svg></div>
+          <h3>Lista por situação</h3>
+          <p>Documentos agrupados em Vencidos, Vencem em 30 dias e Em dia, com a contagem de dias de cada um sempre à vista.</p>
+        </div>
+        <div class="fcard">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 15a4 4 0 0 0 4 4h9a4 4 0 0 0 1-7.87A5.5 5.5 0 0 0 8.1 8.05 4 4 0 0 0 4 15Z"/></svg></div>
+          <h3>Sincronização com iCloud</h3>
+          <p>Seus documentos ficam no seu banco privado do CloudKit — chegam em todos os seus aparelhos, sem servidor da Vence no meio.</p>
+        </div>
+        <div class="fcard">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <h3>Nunca perde o que já cadastrou</h3>
+          <p>Se a assinatura Premium terminar, você continua vendo, editando e apagando tudo — e os lembretes continuam chegando. Só documento novo além do limite grátis pede Premium.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacidade">
+    <div class="wrap">
+      <div class="privacy-grid">
+        <div>
+          <span class="eyebrow">Privacidade</span>
+          <h2>Seus documentos não saem do seu iPhone.</h2>
+          <ul class="privacy-list">
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Sem servidor próprio, sem analytics e sem SDKs de terceiros.</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>OCR, extração de dados e as sugestões da Apple Intelligence rodam no aparelho. O texto do documento nunca é registrado em log.</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Anexos com proteção <span class="mono">NSFileProtectionComplete</span>: ilegíveis com o aparelho bloqueado.</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Localização pedida uma única vez, só para achar o posto de renovação — e nunca armazenada.</span></li>
+          </ul>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-glow"></div>
+          <div class="phone tilt-right">
+            <img src="assets/screenshots/3-modo-escuro.png" alt="Vence em modo escuro mostrando a mesma lista de documentos">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="premium">
+    <div class="wrap">
+      <div class="pricing-head">
+        <span class="eyebrow">Planos</span>
+        <h2>Comece de graça. Cresça quando precisar.</h2>
+      </div>
+      <div class="pgrid">
+        <div class="pcard">
+          <h3>Gratuito</h3>
+          <div class="price mono">R$0</div>
+          <p>Para quem tem os documentos essenciais para acompanhar.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" style="color:var(--success)"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Até 5 documentos ativos</span></li>
+            <li><svg viewBox="0 0 24 24" style="color:var(--success)"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Lembretes e leitura automática completos</span></li>
+            <li><svg viewBox="0 0 24 24" style="color:var(--success)"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Sincronização com iCloud</span></li>
+          </ul>
+        </div>
+        <div class="pcard premium">
+          <h3>Vence Premium</h3>
+          <div class="price mono">Mensal <span>ou</span> anual</div>
+          <p>Teste grátis de 1 semana no plano anual.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Documentos ilimitados</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Tudo do plano gratuito, sem limite</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span>Cancele quando quiser</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="golden"><strong style="color:var(--text)">Regra de ouro:</strong> quando a assinatura termina, você nunca perde documentos nem lembretes. Só criar documentos novos além do limite grátis exige o Premium.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <a class="brand" href="#top">
+        <img src="assets/icon-180.png" alt="">
+        Vence
+      </a>
+      <div class="foot-links">
+        <a href="https://heitor-sampaio-de.github.io/vence-legal/privacidade/">Política de Privacidade</a>
+        <a href="https://heitor-sampaio-de.github.io/vence-legal/termos/">Termos de Uso</a>
+        <a href="mailto:suporte@vence-app.com" class="support-email">suporte@vence-app.com</a>
+      </div>
+    </div>
+    <p class="foot-copy">© 2026 Vence. Feito no Brasil, para o Brasil.</p>
+  </div>
+</footer>
+
+</body>
+</html>
