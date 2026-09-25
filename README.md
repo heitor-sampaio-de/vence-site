@@ -1,6 +1,8 @@
 # vence-site
 
-Página de divulgação do Vence (pré-lançamento). Site estático, sem build: um `index.html` com CSS/JS inline e as imagens em `assets/`.
+Página de divulgação do Vence. Site estático, sem build: um `index.html` com CSS/JS inline e as imagens em `assets/`.
+
+Publicado em produção: [vence-app.com](https://vence-app.com), via GitHub Pages, com o domínio comprado na Squarespace apontando pra cá por DNS (A + CNAME `www`; o MX/TXT do Google Workspace, usado no e-mail de suporte, ficam intactos).
 
 ## Testar localmente
 
@@ -11,34 +13,26 @@ python3 -m http.server 8000
 
 Abra `http://localhost:8000`.
 
-## Publicar com domínio da Squarespace
+## Publicar mudanças
 
-O plano da Squarespace não permite subir uma página HTML própria inteira — só um Code Block dentro do editor. Por isso este site é hospedado de graça em outro lugar (GitHub Pages, Vercel ou Netlify) e o domínio da Squarespace só aponta para lá via DNS. O conteúdo continua 100% seu; você só usa a Squarespace como registrador do domínio.
+É só commitar e dar push na branch `main` — o GitHub Pages republica sozinho em alguns segundos:
 
-### Opção A — GitHub Pages (mesmo esquema do vence-legal)
+```bash
+git add -A
+git commit -m "..."
+git push
+```
 
-1. Crie um repositório novo (ex: `vence-site`) e suba esta pasta:
-   ```bash
-   cd vence-site
-   git init
-   git add .
-   git commit -m "Site de divulgação do Vence"
-   gh repo create vence-site --public --source=. --push
-   ```
-2. No GitHub, em **Settings → Pages**, source = branch `main`, pasta `/ (root)`.
-3. Em **Settings → Pages → Custom domain**, informe seu domínio (ex: `vence-app.com`) — isso cria um arquivo `CNAME` no repositório.
-4. Na Squarespace, em **Configurações → Domínios → [seu domínio] → DNS Settings**, adicione:
-   - 4 registros **A** no `@` apontando para:
-     `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-   - 1 registro **CNAME** em `www` apontando para `SEU-USUARIO.github.io`
-5. Espere a propagação (minutos a poucas horas) e ative **Enforce HTTPS** em Pages.
+## DNS na Squarespace
 
-### Opção B — Vercel ou Netlify
+Domínio gerenciado em **Domínios → vence-app.com → DNS → DNS Settings**. Registros custom atuais:
 
-Mais simples para SSL e subdomínios: conecte o repositório (ou arraste a pasta) no painel deles, depois em **Domains** adicione seu domínio da Squarespace — cada um te dá o registro CNAME/A exato para colar no DNS da Squarespace.
+- 4 **A** em `@` → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (IPs do GitHub Pages)
+- 1 **CNAME** em `www` → `heitor-sampaio-de.github.io.`
+- MX + 2 TXT (SPF/DKIM) do Google Workspace — não mexer, é o e-mail `suporte@vence-app.com`.
 
-## Antes de publicar de verdade
+O domínio customizado e o certificado HTTPS ficam configurados do lado do GitHub em **Settings → Pages** do repositório.
 
-- Trocar o link `mailto:suporte@vence-app.com` do botão "Avise-me no lançamento" se o e-mail de suporte mudar.
-- Trocar o pill "chegando em breve" e o botão do topo pelo badge oficial "Baixar na App Store" assim que o app for aprovado (baixe o artwork em [tools.applemediaservices.com](https://tools.applemediaservices.com)) e linkar para a ficha na App Store.
-- Confirmar `og:url` em `index.html` com o domínio final.
+## Trocar o badge da App Store pelo oficial (opcional)
+
+O botão "Baixar na App Store" usa um ícone simples desenhado à mão. Se quiser o selo oficial da Apple, baixe o artwork em [tools.applemediaservices.com](https://tools.applemediaservices.com) e troque o `<a class="btn">` no hero em `index.html`.
